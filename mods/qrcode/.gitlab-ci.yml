@@ -1,0 +1,31 @@
+stages:
+  - test
+
+test-debian9:
+  image: debian:9
+  stage: test
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq luarocks
+  script:
+    - luarocks install luacheck
+    - luacheck .
+    #- luajit init.lua
+
+
+variables:
+  IRRLICHT_TAG: "1.9.0mt3"
+  MINETEST_GAME_REPO: "https://github.com/minetest/minetest_game.git"
+
+.build_template:
+  stage: build
+  before_script:
+   - apt-get update
+   - DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential git cmake libpng-dev libjpeg-dev libxxf86vm-dev libgl1-mesa-dev libsqlite3-dev libleveldb-dev libogg-dev libvorbis-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev libzstd-dev
+  script:
+    - git clone https://github.com/minetest/irrlicht -b $IRRLICHT_TAG lib/irrlichtmt
+    - mkdir cmakebuild
+    - cd cmakebuild
+    - cmake -DCMAKE_INSTALL_PREFIX=../artifact/minetest/usr/ -DCMAKE_BUILD_TYPE=Release -DRUN_IN_PLACE=FALSE -DENABLE_GETTEXT=TRUE -DBUILD_SERVER=TRUE ..
+    - make -j2
+    - make install
+

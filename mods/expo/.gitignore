@@ -1,0 +1,5 @@
+#gitignore minetest_presentations
+
+/presentations_mod/.vscode/
+/presentations_mod/external/
+/textures/machin
